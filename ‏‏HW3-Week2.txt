@@ -1,0 +1,229 @@
+package com.example.demo.Modele;
+
+import lombok.AllArgsConstructor;
+
+import javax.validation.constraints.*;
+
+@AllArgsConstructor
+public class Ride {
+    @NotEmpty(message = "Enter a ID Number")
+    @Size(min=2, max=5,message = "Your Id Must More Then 2")
+    private Integer rideID;
+    @Size(min=4, max=15,message = "Your Name Must be More Then 4")
+    @NotEmpty(message = "Enter a rideName")
+    private String rideName;
+    @NotNull(message = "Enter a rideType")
+    @Pattern(regexp = "(rollercoaster|thriller|water)")
+    private String rideType;
+    @NotEmpty(message = "Enter a tickets")
+    @Positive(message = "Write a Correct Number")
+    private Integer tickets;
+    @NotEmpty(message = "Enter a Price")
+    private Integer price;
+}
+
+
+
+
+*************************************************************************************************
+
+
+
+
+
+
+
+package com.example.demo.Controller;
+import com.example.demo.Modele.Ride;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+
+@RestController
+@RequestMapping("api/v1/employee")
+public class employeeController {
+    ArrayList<Employee> employees = new ArrayList<>();
+
+    @GetMapping
+    public ResponseEntity getEmployee() {
+        return ResponseEntity.status(200).body(employees);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity addEmployee(@RequestBody @Valid Employee employee, Errors errors) {
+        if (errors.hasErrors()) {
+            String message = errors.getFieldError().getDefaultMessage();
+            return ResponseEntity.status(400).body(new ResponseAPI(message, 400, errors.getFieldError()));
+        }
+        employees.add(employee);
+        return ResponseEntity.status(200).body("Employee added");
+    }
+    @PutMapping("/update")
+    public ResponseEntity updateEmployee(@RequestBody @Valid Employee employee, Errors errors){
+        if(errors.hasErrors()){
+            String message = errors.getFieldError().getDefaultMessage();
+            return ResponseEntity.status(400).body(new ResponseAPI(message,400,errors.getFieldError()));
+        }
+        for(int i = 0; i < employees.size() ; i++){
+            if (employee.getId().equals(employees.get(i).getId())){
+                employees.set(i,employee);
+                return ResponseEntity.status(200).body("Employee updated");
+            }
+
+        }
+        return ResponseEntity.status(400).body("Employee not found");
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity deleteRide(@RequestBody String id){
+
+        for(int i = 0; i < employees.size() ; i++){
+
+            if (id.equals(employees.get(i).getId())){
+                employees.remove(i);
+                return ResponseEntity.status(200).body("Ride deleted");
+            }
+
+        }
+        return ResponseEntity.status(400).body("Ride not found");
+    }
+    @PutMapping(("/apply"))
+    public ResponseEntity applyEmployee(@RequestBody String id){
+        for(int i = 0; i < employees.size() ; i++){
+            Employee e1 = employees.get(i);
+            if(id.equals(e1.getId())){
+                if(e1.isOnLeave()){
+                    return ResponseEntity.status(400).body("Employee is already on leave");
+                }
+                if(e1.getAnnualLeave() > 0){
+                    e1.setOnLeave(true);
+                    return ResponseEntity.status(200).body("Employee is now on leave");
+                }
+            }
+        }
+        return ResponseEntity.status(400).body("Couldn't find Employee by ID");
+    }
+
+}
+
+
+
+
+*********************************************************************************************
+
+
+
+
+
+package com.example.demo.Modele;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import javax.validation.constraints.*;
+
+@AllArgsConstructor @Data
+public class Employee {
+    @NotNull(message = "Enter ID")
+    @Size(min = 2,message = "Most Id More Then 2")
+    private String id;
+    @NotNull(message = "Enter Name ")
+    @Size(min = 4,message = "Enter Name Most Be More Then $ Character")
+    private String name;
+    @NotNull
+    @Min(value = 25,message = "Most Bigger Then 25")
+    private Integer age;
+    @AssertFalse(message = "Most Be Fale")
+    private boolean onLeave;
+    @NotNull(message = "Enter The employmentYear")
+    @Min(value = 4,message = "")
+    private Integer employmentYear;
+    @NotNull(message = "Enter The annualLeave")
+    private Integer  annualLeave;
+
+
+
+
+
+
+
+**************************************************************************************************
+
+
+
+
+
+
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.ArrayList;
+
+@RestController
+@RequestMapping("api/v1/employee")
+public class employeeController {
+    ArrayList<Employee> employees = new ArrayList<>();
+
+    @GetMapping
+    public ResponseEntity getEmployee() {
+        return ResponseEntity.status(200).body(employees);
+    }
+
+    @PostMapping("/OnIt")
+    public ResponseEntity addEmployee(@RequestBody @Valid Employee employee, Errors errors) {
+        if (errors.hasErrors()) {
+            String message = errors.getFieldError().getDefaultMessage();
+            return ResponseEntity.status(400).body(new ResponseAPI(message, 400, errors.getFieldError()));
+        }
+        employees.add(employee);
+        return ResponseEntity.status(200).body("Employee added");
+    }
+    @PutMapping("/Set")
+    public ResponseEntity setEmployee(@RequestBody @Valid Employee employee, Errors errors){
+        if(errors.hasErrors()){
+            String message = errors.getFieldError().getDefaultMessage();
+            return ResponseEntity.status(400).body(new ResponseAPI(message,400,errors.getFieldError()));
+        }
+        for(int i = 0; i < employees.size() ; i++){
+            if (employee.getId().equals(employees.get(i).getId())){
+                employees.set(i,employee);
+                return ResponseEntity.status(200).body("Employee updated");
+            }
+
+        }
+        return ResponseEntity.status(400).body("Employee not found");
+    }
+    @DeleteMapping("/Remove")
+    public ResponseEntity removeRide(@RequestBody String id){
+
+        for(int i = 0; i < employees.size() ; i++){
+
+            if (id.equals(employees.get(i).getId())){
+                employees.remove(i);
+                return ResponseEntity.status(200).body("Ride deleted");
+            }
+
+        }
+        return ResponseEntity.status(400).body("Ride not found");
+    }
+    @PutMapping("Run")
+    public ResponseEntity runEmployee(@RequestBody String id){
+        for(int i = 0; i < employees.size() ; i++){
+            Employee e1 = employees.get(i);
+            if(id.equals(e1.getId())){
+                if(e1.isOnLeave()){
+                    return ResponseEntity.status(404).body("Employee is already on leave");
+                }
+                if(e1.getAnnualLeave() > 0){
+                    e1.setOnLeave(true);
+                    return ResponseEntity.status(201).body("Employee leave");
+                }
+            }
+        }
+        return ResponseEntity.status(403).body("No Employee");
+    }
+
+}
